@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\WorkspaceController;
 use App\Http\Controllers\Api\WorkspaceInviteController;
 use App\Http\Controllers\Api\WorkspaceMemberController;
@@ -27,7 +28,22 @@ Route::prefix('auth')->group(function () {
             ->group(function () {
                 Route::get('/members', [WorkspaceMemberController::class, 'index']);
                 Route::post('/invites', [WorkspaceInviteController::class, 'store'])
-                    ->middleware('permission:workspace.invite');
+                    ->middleware('permission:workspace.invite.sanctum');
+
+                Route::get('/projects', [ProjectController::class, 'index'])
+                    ->middleware('permission:projects.view,sanctum');
+
+                Route::post('/projects', [ProjectController::class, 'store'])
+                    ->middleware('permission:projects.create,sanctum');
+
+                Route::get('/projects/{project}', [ProjectController::class, 'show'])
+                    ->middleware('permission:projects.view,sanctum');
+
+                Route::put('/projects/{project}', [ProjectController::class, 'update'])
+                    ->middleware('permission:projects.update,sanctum');
+
+                Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])
+                    ->middleware('permission:projects.delete,sanctum');
             });
 
     });
