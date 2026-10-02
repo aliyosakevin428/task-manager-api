@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Workspaces\EnsureWorkspaceRoles;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Workspace\StoreWorkspaceRequest;
+use App\Http\Requests\Workspaces\StoreWorkspaceRequest;
 use App\Http\Resources\WorkspaceResource;
 use App\Models\Workspace;
 use Illuminate\Http\Request;
@@ -39,11 +40,11 @@ class WorkspaceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreWorkspaceRequest $request)
+    public function store(StoreWorkspaceRequest $request, EnsureWorkspaceRoles $ensureRoles)
     {
         $user = $request->user();
 
-        $workspace = DB::transaction(function () use ($request, $user) {
+        $workspace = DB::transaction(function () use ($request, $user, $ensureRoles) {
             $workspace = Workspace::create([
                 'name'=> $request->string('name'),
                 'owner_id' => $user->id,
@@ -76,6 +77,8 @@ class WorkspaceController extends Controller
             ]);
 
             app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+            $ensureRoles->handle($workspace);
 
             $user->assignRole('owner');
 

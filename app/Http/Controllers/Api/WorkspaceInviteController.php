@@ -24,7 +24,7 @@ class WorkspaceInviteController extends Controller
         $role = $request->input('role', 'member');
         $hours = (int) $request->input('expires_in_hours', 24);
 
-        $invite = WorkspaceInvite::class([
+        $invite = WorkspaceInvite::create([
             'workspace_id' => $workspace->id,
             'token_hash' => $hash,
             'role' => $role,
@@ -35,10 +35,10 @@ class WorkspaceInviteController extends Controller
         return response()->json([
             'data' => [
                 'token' => $plain,
-                'role' => $role,
-                'expires_at' => $invite->expires_at->toDateString(),
+                'role' => $invite->role,
+                'expires_at' => $invite->expires_at->toDateTimeString(),
             ]
-        ]);
+        ], 201);
     }
 
     public function join(JoinWorkspaceRequest $request, EnsureWorkspaceRoles $ensureRoles)
