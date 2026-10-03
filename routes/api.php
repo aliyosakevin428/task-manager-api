@@ -28,7 +28,7 @@ Route::prefix('auth')->group(function () {
             ->group(function () {
                 Route::get('/members', [WorkspaceMemberController::class, 'index']);
                 Route::post('/invites', [WorkspaceInviteController::class, 'store'])
-                    ->middleware('permission:workspace.invite.sanctum');
+                    ->middleware('permission:workspace.invite,sanctum');
 
                 Route::get('/projects', [ProjectController::class, 'index'])
                     ->middleware('permission:projects.view,sanctum');

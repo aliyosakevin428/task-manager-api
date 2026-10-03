@@ -2,12 +2,15 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Workspaces\EnsureWorkspaceRoles;
 use App\Models\User;
 use App\Models\Workspace;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class DemoWorkspaceSeeder extends Seeder
 {
@@ -16,6 +19,7 @@ class DemoWorkspaceSeeder extends Seeder
      */
     public function run(): void
     {
+
         $user = User::firstOrCreate(
             ['email' => 'user@example.com'],
             [
@@ -40,5 +44,19 @@ class DemoWorkspaceSeeder extends Seeder
                 'updated_at' => now(),
             ]
         );
+
+        $this->call(PermissionsSeeder::class);
+
+        app(EnsureWorkspaceRoles::class)->handle($workspace);
+
+        app(PermissionRegistrar::class)->setPermissionsTeamId($workspace->id);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $ownerRole = Role::where('team_id', $workspace->id)
+            ->where('name', 'owner')
+            ->where('guard_name', 'sanctum'
+            )->firstOrFail();
+
+        $user->syncRoles($ownerRole);
     }
 }
