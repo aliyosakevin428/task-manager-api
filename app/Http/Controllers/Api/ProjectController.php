@@ -84,6 +84,8 @@ class ProjectController extends Controller
     {
         $project->delete();
 
-        return response()->noContent();
+        return response()->json([
+            'message' => 'Project deleted successfully.',
+        ], 200);
     }
 }
