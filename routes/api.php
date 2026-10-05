@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\WorkspaceController;
 use App\Http\Controllers\Api\WorkspaceInviteController;
 use App\Http\Controllers\Api\WorkspaceMemberController;
@@ -44,6 +45,21 @@ Route::prefix('auth')->group(function () {
 
                 Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])
                     ->middleware('permission:projects.delete,sanctum');
+
+                Route::get('tasks', [TaskController::class, 'index'])
+                    ->middleware('permission:tasks.view,sanctum');
+
+                Route::post('tasks', [TaskController::class, 'store'])
+                    ->middleware('permission:tasks.create,sanctum');
+
+                Route::get('tasks/{task}', [TaskController::class, 'show'])
+                    ->middleware('permission:tasks.view,sanctum');
+
+                Route::put('tasks/{task}', [TaskController::class, 'update'])
+                    ->middleware('permission:tasks.update,sanctum');
+
+                Route::delete('tasks/{task}', [TaskController::class, 'destroy'])
+                    ->middleware('permission:tasks.delete,sanctum');
             });
 
     });
