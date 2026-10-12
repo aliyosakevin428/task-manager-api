@@ -29,6 +29,13 @@ Route::prefix('auth')->group(function () {
             ->scopeBindings()
             ->group(function () {
                 Route::get('/members', [WorkspaceMemberController::class, 'index']);
+
+                Route::patch('/members/{user}', [WorkspaceMemberController::class, 'update'])
+                    ->middleware('permission:workspace.members.manage,sanctum');
+
+                Route::delete('/members/{user}', [WorkspaceMemberController::class, 'destroy'])
+                    ->middleware('permission:workspace.members.manage,sanctum');
+                   
                 Route::post('/invites', [WorkspaceInviteController::class, 'store'])
                     ->middleware('permission:workspace.invite,sanctum');
 
