@@ -46,21 +46,31 @@ Route::prefix('auth')->group(function () {
                 Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])
                     ->middleware('permission:projects.delete,sanctum');
 
-                Route::get('tasks', [TaskController::class, 'index'])
-                    ->middleware('permission:tasks.view,sanctum');
+                Route::prefix('projects/{project}')->group(function () {
 
-                Route::post('tasks', [TaskController::class, 'store'])
-                    ->middleware('permission:tasks.create,sanctum');
+                    Route::get('tasks', [TaskController::class, 'index'])
+                        ->middleware('permission:tasks.view,sanctum');
 
-                Route::get('tasks/{task}', [TaskController::class, 'show'])
-                    ->middleware('permission:tasks.view,sanctum');
+                    Route::post('tasks', [TaskController::class, 'store'])
+                        ->middleware('permission:tasks.create,sanctum');
 
-                Route::put('tasks/{task}', [TaskController::class, 'update'])
-                    ->middleware('permission:tasks.update,sanctum');
+                    Route::get('tasks/{task}', [TaskController::class, 'show'])
+                        ->middleware('permission:tasks.view,sanctum');
 
-                Route::delete('tasks/{task}', [TaskController::class, 'destroy'])
-                    ->middleware('permission:tasks.delete,sanctum');
-            });
+                    Route::put('tasks/{task}', [TaskController::class, 'update'])
+                        ->middleware('permission:tasks.update,sanctum');
+
+                    Route::delete('tasks/{task}', [TaskController::class, 'destroy'])
+                        ->middleware('permission:tasks.delete,sanctum');
+
+                    Route::post('tasks/{task}/restore', [TaskController::class, 'restore'])
+                        ->middleware('permission:tasks.update,sanctum');
+
+                    Route::delete('tasks/{task}/force-delete', [TaskController::class, 'forceDelete'])
+                        ->middleware('permission:tasks.delete,sanctum');
+
+                });
+        });
 
     });
 });

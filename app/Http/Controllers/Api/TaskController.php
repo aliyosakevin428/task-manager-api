@@ -113,4 +113,34 @@ class TaskController extends Controller
 
         return response()->json(['message' => 'Task deleted successfully.'], 200);
     }
+
+    public function restore(Workspace $workspace, Project $project, $task)
+    {
+        $task = Task::withTrashed()
+            ->where('workspace_id', $workspace->id)
+            ->where('project_id', $project->id)
+            ->where('id', $task)
+            ->firstOrFail();
+
+        $task->restore();
+
+        return response()->json([
+            'message' => 'Task restored successfully.',
+        ])->setStatusCode(200);
+    }
+
+    public function forceDelete(Workspace $workspace, Project $project, $task)
+    {
+        $task = Task::withTrashed()
+            ->where('workspace_id', $workspace->id)
+            ->where('project_id', $project->id)
+            ->where('id', $task)
+            ->firstOrFail();
+
+        $task->forceDelete();
+
+        return response()->json([
+            'message' => 'Task permanently deleted successfully.',
+        ], 200);
+    }
 }
