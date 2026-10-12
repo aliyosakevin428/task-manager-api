@@ -32,6 +32,7 @@ class PermissionsSeeder extends Seeder
 
             'comments.view',
             'comments.create',
+            'comments.update',
             'comments.delete',
         ];
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comments\StoreTaskCommentRequest;
+use App\Http\Requests\Comments\UpdateTaskCommentRequest;
 use App\Http\Resources\TaskCommentResource;
 use App\Models\Project;
 use App\Models\Task;
@@ -48,7 +49,7 @@ class TaskCommentController extends Controller
 
         return (new TaskCommentResource($comment))
             ->response()
-            ->setStatusCode(201);
+            ->setStatusCode(200);
     }
 
     /**
@@ -70,20 +71,47 @@ class TaskCommentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateTaskCommentRequest $request, Workspace $workspace, Project $project, Task $task, TaskComment $comment)
     {
-        //
+        $user = $request->user();
+
+        $isAuthor = $comment->user_id === $user->id;
+
+        $isModerator = $user->hasRole('admin') || $user->hasRole('owner');
+
+        if (!$isAuthor && !$isModerator) {
+            abort(403, 'You are not authorized to update this comment.');
+        }
+
+        $comment->update([
+            'body' => $request->input('body'),
+        ]);
+
+        $comment->load('user:id,name,email');
+
+        return (new TaskCommentResource($comment))
+            ->response()
+            ->setStatusCode(200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Workspace $workspace, Project $project, Task $task, TaskComment $comment)
+    public function destroy(Request $request, Workspace $workspace, Project $project, Task $task, TaskComment $comment)
     {
+        $user = $request->user();
+
+        $isAuthor = $comment->user_id === $user->id;
+        $isModerator = $user->hasRole('admin') || $user->hasRole('owner');
+
+        if (!$isAuthor && !$isModerator) {
+            abort(403, 'You are not authorized to delete this comment.');
+        }
+
         $comment->delete();
 
         return response()->json([
             'message' => 'Comment deleted successfully.'
-        ], 201);
+        ], 200);
     }
 }

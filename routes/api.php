@@ -70,20 +70,23 @@ Route::prefix('auth')->group(function () {
                     Route::delete('tasks/{task}/force-delete', [TaskController::class, 'forceDelete'])
                         ->middleware('permission:tasks.delete,sanctum');
 
-                });
-
                 Route::prefix('tasks/{task}')->group(function () {
+
                     Route::get('comments', [TaskCommentController::class, 'index'])
                         ->middleware('permission:comments.view,sanctum');
 
                     Route::post('comments', [TaskCommentController::class, 'store'])
                         ->middleware('permission:comments.create,sanctum');
 
+                    Route::patch('comments/{comment}', [TaskCommentController::class, 'update'])
+                        ->middleware('permission:comments.update,sanctum');
+
                     Route::delete('comments/{comment}', [TaskCommentController::class, 'destroy'])
                         ->middleware('permission:comments.delete,sanctum');
+                    });
+
                 });
            });
-
     });
 });
 

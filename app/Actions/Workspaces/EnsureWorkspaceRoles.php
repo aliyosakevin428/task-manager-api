@@ -41,13 +41,13 @@ class EnsureWorkspaceRoles
             'workspace.members.manage',
             'projects.view','projects.create','projects.update','projects.delete',
             'tasks.view','tasks.create','tasks.update','tasks.delete',
-            'comments.view','comments.create','comments.delete',
+            'comments.view','comments.create','comments.update','comments.delete',
         ])->get());
 
         $member->syncPermissions(Permission::whereIn('name', [
             'projects.view',
             'tasks.view','tasks.create','tasks.update',
-            'comments.view','comments.create',
+            'comments.view','comments.create','comments.update',
         ])->get());
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
