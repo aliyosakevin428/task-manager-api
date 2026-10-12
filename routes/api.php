@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\TaskCommentController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\WorkspaceController;
 use App\Http\Controllers\Api\WorkspaceInviteController;
@@ -70,7 +71,18 @@ Route::prefix('auth')->group(function () {
                         ->middleware('permission:tasks.delete,sanctum');
 
                 });
-        });
+
+                Route::prefix('tasks/{task}')->group(function () {
+                    Route::get('comments', [TaskCommentController::class, 'index'])
+                        ->middleware('permission:comments.view,sanctum');
+
+                    Route::post('comments', [TaskCommentController::class, 'store'])
+                        ->middleware('permission:comments.create,sanctum');
+
+                    Route::delete('comments/{comment}', [TaskCommentController::class, 'destroy'])
+                        ->middleware('permission:comments.delete,sanctum');
+                });
+           });
 
     });
 });
