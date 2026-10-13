@@ -5,7 +5,7 @@ Supports multi-workspace teams, role-based access control (RBAC), invite tokens,
 
 ## Tech Stack
 
-- **Laravel** (latest)
+- **Laravel** (13)
 - **MySQL**
 - **Laravel Sanctum** (API token auth)
 - **Spatie Laravel Permission** (RBAC) + **Teams** (workspace-scoped roles)
@@ -101,7 +101,7 @@ After running the server, open:
 
 ---
 
-## Installation
+<!-- ## Installation
 
 ### 1) Clone
 
@@ -109,3 +109,10 @@ After running the server, open:
 git clone https://github.com/aliyosakevin428/task-manager-api.git
 cd task-manager-api
 ```
+
+### 2) Install Dependencies
+
+```bash
+composer install
+
+``` -->
