@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskAttachmentController;
 use App\Http\Controllers\Api\TaskCommentController;
@@ -31,6 +32,10 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('workspace')
         ->scopeBindings()
         ->group(function () {
+
+            Route::get('/dashboard', [DashboardController::class, 'show'])
+                ->middleware('permission:dashboard.view,sanctum');
+
             Route::get('/', [WorkspaceController::class, 'show']);
 
             Route::get('/members', [WorkspaceMemberController::class, 'index']);

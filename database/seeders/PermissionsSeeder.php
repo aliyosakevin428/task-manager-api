@@ -17,6 +17,8 @@ class PermissionsSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $permissions = [
+            'dashboard.view',
+
             'workspace.invite',
             'workspace.members.manage',
 
@@ -41,7 +43,7 @@ class PermissionsSeeder extends Seeder
             'attachments.create',
             'attachments.update',
             'attachments.delete',
-            
+
         ];
 
         foreach ($permissions as $permission) {

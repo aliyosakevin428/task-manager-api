@@ -37,6 +37,7 @@ class EnsureWorkspaceRoles
         $owner->syncPermissions($all);
 
         $admin->syncPermissions(Permission::whereIn('name', [
+            'dashboard.view',
             'workspace.invite',
             'workspace.members.manage',
             'projects.view','projects.create','projects.update','projects.delete',
@@ -47,6 +48,7 @@ class EnsureWorkspaceRoles
         ])->get());
 
         $member->syncPermissions(Permission::whereIn('name', [
+            'dashboard.view',
             'projects.view',
             'tasks.view','tasks.create','tasks.update',
             'comments.view','comments.create','comments.update',
