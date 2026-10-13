@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Activity\LogActivity;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Workspaces\UpdateWorkspaceMemberRequest;
 use App\Models\User;
@@ -36,6 +37,8 @@ class WorkspaceMemberController extends Controller
 
     public function update(UpdateWorkspaceMemberRequest $request, Workspace $workspace, User $member)
     {
+        $before = $member->only('role');
+
         abort_if($member->id === $workspace->owner_id, 403, 'Cannot change the role of the workspace owner.');
 
         $newRole = $request->input('role');
@@ -62,6 +65,14 @@ class WorkspaceMemberController extends Controller
 
             app(PermissionRegistrar::class)->forgetCachedPermissions();
         });
+
+        app(LogActivity::class)->handle(
+                $workspace->id,
+                $request->user()->id,
+                'workspace.member.update',
+                $member,
+                $before,
+            );
 
         return response()->json([
             'message' => 'Member role updated successfully.',
@@ -96,6 +107,13 @@ class WorkspaceMemberController extends Controller
 
             app(PermissionRegistrar::class)->forgetCachedPermissions();
         });
+
+        app(LogActivity::class)->handle(
+            $workspace->id,
+            $request->user()->id,
+            'workspace.member.remove',
+            $member
+        );
 
         return response()->json([
             'message' => 'Member removed successfully.',

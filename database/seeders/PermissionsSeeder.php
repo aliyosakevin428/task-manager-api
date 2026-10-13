@@ -34,6 +34,8 @@ class PermissionsSeeder extends Seeder
             'comments.create',
             'comments.update',
             'comments.delete',
+
+            'activity.view',
         ];
 
         foreach ($permissions as $permission) {

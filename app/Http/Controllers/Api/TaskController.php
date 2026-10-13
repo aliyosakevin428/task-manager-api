@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\Activity\LogActivity;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tasks\StoreTaskRequest;
 use App\Http\Requests\Tasks\UpdateTaskRequest;
@@ -74,6 +75,14 @@ class TaskController extends Controller
             'assigned_to' => $request->input('assigned_to'),
         ]);
 
+        app(LogActivity::class)->handle(
+            workspaceId: $workspace->id,
+            userId: $request->user()->id,
+            action: 'task.created',
+            subject: $task,
+            metadata: [ 'title' => $task->title]
+        );
+
         return (new TaskResource($task))->response()->setStatusCode(201);
     }
 
@@ -98,8 +107,23 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Workspace $workspace, Project $project, Task $task)
     {
+        $before = $task->only(['title', 'status', 'priority', 'due_date', 'assigned_to']);
+
         $task->fill($request->validated());
         $task->save();
+
+        $after = $task->only(['title', 'status', 'priority', 'due_date', 'assigned_to']);
+
+        app(LogActivity::class)->handle(
+            $workspace->id,
+            $request->user()->id,
+            'task.updated',
+            $task,
+            [
+                'before' => $before,
+                'after' => $after,
+            ]
+        );
 
         return new TaskResource($task);
     }
@@ -110,6 +134,13 @@ class TaskController extends Controller
     public function destroy(Workspace $workspace, Project $project, Task $task)
     {
         $task->delete();
+
+        app(LogActivity::class)->handle(
+            $workspace->id,
+            $task->created_by,
+            'task.deleted',
+            $task, [ 'title' => $task->title ]
+        );
 
         return response()->json(['message' => 'Task deleted successfully.'], 200);
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectController;
@@ -93,6 +94,9 @@ Route::prefix('auth')->group(function () {
                     });
 
                 });
+
+                // Route::get('/activity-logs', [ActivityLogController::class, 'index'])
+                //     ->middleware('permission:activity.view,sanctum');
            });
     });
 });
