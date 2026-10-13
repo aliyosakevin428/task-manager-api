@@ -34,23 +34,23 @@ class WorkspaceMemberController extends Controller
 
     }
 
-    public function update(UpdateWorkspaceMemberRequest $request, Workspace $workspace, User $user)
+    public function update(UpdateWorkspaceMemberRequest $request, Workspace $workspace, User $member)
     {
-        abort_if($user->id === $workspace->owner_id, 403, 'Cannot change the role of the workspace owner.');
+        abort_if($member->id === $workspace->owner_id, 403, 'Cannot change the role of the workspace owner.');
 
-        $newRole = $request->string('role');
+        $newRole = $request->input('role');
 
         $membership = DB::table('workspace_members')
             ->where('workspace_id', $workspace->id)
-            ->where('user_id', $user->id)
+            ->where('user_id', $member->id)
             ->first();
 
         abort_unless((bool)$membership, 404, 'User is not a member of this workspace.');
 
-        DB::transaction(function () use ($workspace, $user, $newRole) {
+        DB::transaction(function () use ($workspace, $member, $newRole) {
             DB::table('workspace_members')
                 ->where('workspace_id', $workspace->id)
-                ->where('user_id', $user->id)
+                ->where('user_id', $member->id)
                 ->update([
                     'role' => $newRole,
                     'updated_at' => now(),
@@ -58,7 +58,7 @@ class WorkspaceMemberController extends Controller
 
             app(PermissionRegistrar::class)->setPermissionsTeamId($workspace->id);
 
-            $user->syncRoles([$newRole]);
+            $member->syncRoles([$newRole]);
 
             app(PermissionRegistrar::class)->forgetCachedPermissions();
         });
@@ -66,33 +66,33 @@ class WorkspaceMemberController extends Controller
         return response()->json([
             'message' => 'Member role updated successfully.',
             'data' => [
-                'user_id' => $user->id,
+                'user_id' => $member->id,
                 'workspace_id' => $workspace->id,
                 'role' => (string) $newRole,
             ],
-        ]);
+        ], 200);
     }
 
-    public function destroy(Request $request, Workspace $workspace, User $user)
+    public function destroy(Request $request, Workspace $workspace, User $member)
     {
-        abort_if($user->id === $workspace->owner_id, 403, 'Cannot remove the workspace owner.');
+        abort_if($member->id === $workspace->owner_id, 403, 'Cannot remove the workspace owner.');
 
         $exists = DB::table('workspace_members')
             ->where('workspace_id', $workspace->id)
-            ->where('user_id', $user->id)
+            ->where('user_id', $member->id)
             ->exists();
 
         abort_unless($exists, 404, 'User is not a member of this workspace.');
 
-        DB::transaction(function () use ($workspace, $user) {
+        DB::transaction(function () use ($workspace, $member) {
             DB::table('workspace_members')
                 ->where('workspace_id', $workspace->id)
-                ->where('user_id', $user->id)
+                ->where('user_id', $member->id)
                 ->delete();
 
             app(PermissionRegistrar::class)->setPermissionsTeamId($workspace->id);
 
-            $user->syncRoles([]);
+            $member->syncRoles([]);
 
             app(PermissionRegistrar::class)->forgetCachedPermissions();
         });
@@ -100,7 +100,7 @@ class WorkspaceMemberController extends Controller
         return response()->json([
             'message' => 'Member removed successfully.',
             'data' => [
-                'user_id' => $user->id,
+                'user_id' => $member->id,
                 'workspace_id' => $workspace->id,
             ],
         ], 200);

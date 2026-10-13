@@ -30,12 +30,12 @@ Route::prefix('auth')->group(function () {
             ->group(function () {
                 Route::get('/members', [WorkspaceMemberController::class, 'index']);
 
-                Route::patch('/members/{user}', [WorkspaceMemberController::class, 'update'])
+                Route::patch('/members/{member}', [WorkspaceMemberController::class, 'update'])
                     ->middleware('permission:workspace.members.manage,sanctum');
 
-                Route::delete('/members/{user}', [WorkspaceMemberController::class, 'destroy'])
+                Route::delete('/members/{member}', [WorkspaceMemberController::class, 'destroy'])
                     ->middleware('permission:workspace.members.manage,sanctum');
-                   
+
                 Route::post('/invites', [WorkspaceInviteController::class, 'store'])
                     ->middleware('permission:workspace.invite,sanctum');
 

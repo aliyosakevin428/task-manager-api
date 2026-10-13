@@ -47,7 +47,7 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $token,
             ]
-        ]);
+        ], 200);
 
     }
 
@@ -57,7 +57,7 @@ class AuthController extends Controller
             'data' => [
                 'user' => $request->user(),
             ],
-        ]);
+        ], 200);
 
     }
 
@@ -67,7 +67,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Logout berhasil.',
-        ]);
+        ], 200);
     }
 
     public function changePassword(Request $request)
