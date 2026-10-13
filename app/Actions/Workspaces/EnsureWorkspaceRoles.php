@@ -42,6 +42,7 @@ class EnsureWorkspaceRoles
             'projects.view','projects.create','projects.update','projects.delete',
             'tasks.view','tasks.create','tasks.update','tasks.delete',
             'comments.view','comments.create','comments.update','comments.delete',
+            'attachments.view','attachments.create','attachments.update','attachments.delete',
             'activity.view',
         ])->get());
 

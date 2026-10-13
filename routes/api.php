@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\TaskAttachmentController;
 use App\Http\Controllers\Api\TaskCommentController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\WorkspaceController;
@@ -19,67 +19,69 @@ Route::prefix('auth')->group(function () {
         Route::get('me', [AuthController::class, 'me']);
         Route::put('change-password', [AuthController::class, 'changePassword']);
         Route::post('logout', [AuthController::class, 'logout']);
+    });
+});
 
-        Route::get('/workspaces', [WorkspaceController::class, 'index']);
-        Route::post('/workspaces', [WorkspaceController::class, 'store']);
-        Route::get('/workspaces/{workspace}', [WorkspaceController::class, 'show']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/workspaces', [WorkspaceController::class, 'index']);
+    Route::post('/workspaces', [WorkspaceController::class, 'store']);
+    Route::post('/workspaces/join', [WorkspaceInviteController::class, 'join']);
 
-        Route::post('/workspace/join', [WorkspaceInviteController::class, 'join']);
-        Route::prefix('workspaces/{workspace}')
-            ->middleware(['workspace'])
-            ->scopeBindings()
-            ->group(function () {
-                Route::get('/members', [WorkspaceMemberController::class, 'index']);
+    Route::prefix('workspaces/{workspace}')
+        ->middleware('workspace')
+        ->scopeBindings()
+        ->group(function () {
+            Route::get('/', [WorkspaceController::class, 'show']);
 
-                Route::patch('/members/{member}', [WorkspaceMemberController::class, 'update'])
-                    ->middleware('permission:workspace.members.manage,sanctum');
+            Route::get('/members', [WorkspaceMemberController::class, 'index']);
 
-                Route::delete('/members/{member}', [WorkspaceMemberController::class, 'destroy'])
-                    ->middleware('permission:workspace.members.manage,sanctum');
+            Route::patch('/members/{member}', [WorkspaceMemberController::class, 'update'])
+                ->middleware('permission:workspace.members.manage,sanctum');
 
-                Route::post('/invites', [WorkspaceInviteController::class, 'store'])
-                    ->middleware('permission:workspace.invite,sanctum');
+            Route::delete('/members/{member}', [WorkspaceMemberController::class, 'destroy'])
+                ->middleware('permission:workspace.members.manage,sanctum');
 
-                Route::get('/projects', [ProjectController::class, 'index'])
-                    ->middleware('permission:projects.view,sanctum');
+            Route::post('/invites', [WorkspaceInviteController::class, 'store'])
+                ->middleware('permission:workspace.invite,sanctum');
 
-                Route::post('/projects', [ProjectController::class, 'store'])
-                    ->middleware('permission:projects.create,sanctum');
+            Route::get('/projects', [ProjectController::class, 'index'])
+                ->middleware('permission:projects.view,sanctum');
 
-                Route::get('/projects/{project}', [ProjectController::class, 'show'])
-                    ->middleware('permission:projects.view,sanctum');
+            Route::post('/projects', [ProjectController::class, 'store'])
+                ->middleware('permission:projects.create,sanctum');
 
-                Route::put('/projects/{project}', [ProjectController::class, 'update'])
-                    ->middleware('permission:projects.update,sanctum');
+            Route::get('/projects/{project}', [ProjectController::class, 'show'])
+                ->middleware('permission:projects.view,sanctum');
 
-                Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])
-                    ->middleware('permission:projects.delete,sanctum');
+            Route::put('/projects/{project}', [ProjectController::class, 'update'])
+                ->middleware('permission:projects.update,sanctum');
 
-                Route::prefix('projects/{project}')->group(function () {
+            Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])
+                ->middleware('permission:projects.delete,sanctum');
 
-                    Route::get('tasks', [TaskController::class, 'index'])
-                        ->middleware('permission:tasks.view,sanctum');
+            Route::prefix('projects/{project}')->group(function () {
+                Route::get('tasks', [TaskController::class, 'index'])
+                    ->middleware('permission:tasks.view,sanctum');
 
-                    Route::post('tasks', [TaskController::class, 'store'])
-                        ->middleware('permission:tasks.create,sanctum');
+                Route::post('tasks', [TaskController::class, 'store'])
+                    ->middleware('permission:tasks.create,sanctum');
 
-                    Route::get('tasks/{task}', [TaskController::class, 'show'])
-                        ->middleware('permission:tasks.view,sanctum');
+                Route::get('tasks/{task}', [TaskController::class, 'show'])
+                    ->middleware('permission:tasks.view,sanctum');
 
-                    Route::put('tasks/{task}', [TaskController::class, 'update'])
-                        ->middleware('permission:tasks.update,sanctum');
+                Route::put('tasks/{task}', [TaskController::class, 'update'])
+                    ->middleware('permission:tasks.update,sanctum');
 
-                    Route::delete('tasks/{task}', [TaskController::class, 'destroy'])
-                        ->middleware('permission:tasks.delete,sanctum');
+                Route::delete('tasks/{task}', [TaskController::class, 'destroy'])
+                    ->middleware('permission:tasks.delete,sanctum');
 
-                    Route::post('tasks/{task}/restore', [TaskController::class, 'restore'])
-                        ->middleware('permission:tasks.update,sanctum');
+                Route::post('tasks/{task}/restore', [TaskController::class, 'restore'])
+                    ->middleware('permission:tasks.update,sanctum');
 
-                    Route::delete('tasks/{task}/force-delete', [TaskController::class, 'forceDelete'])
-                        ->middleware('permission:tasks.delete,sanctum');
+                Route::delete('tasks/{task}/force-delete', [TaskController::class, 'forceDelete'])
+                    ->middleware('permission:tasks.delete,sanctum');
 
                 Route::prefix('tasks/{task}')->group(function () {
-
                     Route::get('comments', [TaskCommentController::class, 'index'])
                         ->middleware('permission:comments.view,sanctum');
 
@@ -91,19 +93,22 @@ Route::prefix('auth')->group(function () {
 
                     Route::delete('comments/{comment}', [TaskCommentController::class, 'destroy'])
                         ->middleware('permission:comments.delete,sanctum');
-                    });
 
+                    Route::get('attachments', [TaskAttachmentController::class, 'index'])
+                        ->middleware('permission:attachments.view,sanctum');
+
+                    Route::post('attachments', [TaskAttachmentController::class, 'store'])
+                        ->middleware('permission:attachments.create,sanctum');
+
+                    Route::delete('attachments/{attachment}', [TaskAttachmentController::class, 'destroy'])
+                        ->middleware('permission:attachments.delete,sanctum');
                 });
-
-                // Route::get('/activity-logs', [ActivityLogController::class, 'index'])
-                //     ->middleware('permission:activity.view,sanctum');
-           });
-    });
+            });
+        });
 });
 
-Route::middleware(['auth:sanctum','admin.team', 'role:superadmin,sanctum'])
+Route::middleware(['auth:sanctum', 'admin.team', 'role:superadmin,sanctum'])
     ->prefix('admin')
     ->group(function () {
         Route::apiResource('users', UserController::class);
     });
-

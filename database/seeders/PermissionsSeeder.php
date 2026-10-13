@@ -36,6 +36,12 @@ class PermissionsSeeder extends Seeder
             'comments.delete',
 
             'activity.view',
+
+            'attachments.view',
+            'attachments.create',
+            'attachments.update',
+            'attachments.delete',
+            
         ];
 
         foreach ($permissions as $permission) {
