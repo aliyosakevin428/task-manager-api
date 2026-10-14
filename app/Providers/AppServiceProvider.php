@@ -7,6 +7,7 @@ use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\PermissionRegistrar;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,7 +32,16 @@ class AppServiceProvider extends ServiceProvider
             });
 
         Gate::before(function ($user, $ability) {
-            return $user->hasRole('superadmin') ? true : null;
+            $registrar = app(PermissionRegistrar::class);
+
+            $current = $registrar->getPermissionsTeamId();
+            $registrar->setPermissionsTeamId(0);
+
+            $isSuper = $user->hasRole('superadmin', 'sanctum');
+
+            $registrar->setPermissionsTeamId($current);
+
+            return $isSuper ? true : null;
         });
     }
 }

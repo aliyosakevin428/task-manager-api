@@ -21,12 +21,18 @@ class WorkspaceController extends Controller
     {
         $user = $request->user();
 
-        $workspace = Workspace::query()
-            ->whereHas('members', fn($q) => $q->where('users.id', $user->id))
-            ->orderByDesc('id')
-            ->paginate(15);
+        $query = Workspace::query()->orderByDesc('id');
 
-        return WorkspaceResource::collection($workspace);
+        // $workspace = Workspace::query()
+        //     ->whereHas('members', fn($q) => $q->where('users.id', $user->id))
+        //     ->orderByDesc('id')
+        //     ->paginate(15);
+
+        if (! $user->isSuperadmin()) {
+            $query->whereHas('members', fn($q) => $q->where('users.id', $user->id));
+        }
+
+        return WorkspaceResource::collection($query->paginate(15));
     }
 
     /**
@@ -101,6 +107,10 @@ class WorkspaceController extends Controller
             ->exists();
 
         abort_unless($isMember, 403);
+
+        if (! $request->user()->isSuperadmin()) {
+            $workspace->load('members');
+        }
 
         return new WorkspaceResource($workspace);
     }

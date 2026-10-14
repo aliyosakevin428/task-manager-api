@@ -26,14 +26,25 @@ class SetWorkspaceContext
             abort(404);
         }
 
+        $registrar = app(PermissionRegistrar::class);
+
+        $currentTeamId = $registrar->getPermissionsTeamId();
+        $registrar ->setPermissionsTeamId(0);
+
+        if ($request->user()->hasRole('superadmin', 'sanctum')) {
+            $registrar->setPermissionsTeamId($workspace->id);
+            return $next($request);
+        }
+
+        $registrar->setPermissionsTeamId($currentTeamId);
+
         $isMember = $workspace->members()
             ->where('users.id', $user->id)
             ->exists();
 
         abort_unless($isMember, 403, 'You are not a member of this workspace');
 
-        app(PermissionRegistrar::class)->setPermissionsTeamId($workspace->id);
-
+        $registrar->setPermissionsTeamId($workspace->id);
         return $next($request);
 
     }

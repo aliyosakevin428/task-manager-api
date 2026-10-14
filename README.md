@@ -8,7 +8,6 @@
 [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0%2B-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
 [![Sanctum](https://img.shields.io/badge/Auth-Sanctum-red?style=for-the-badge&logo=laravel)](https://laravel.com/docs/sanctum)
-[![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 [Features](#-key-features) • [Tech Stack](#-tech-stack) • [Installation Steps](#-installation-steps) • [API Documentation](#-api-documentation) • [License](#-license)
 
@@ -147,13 +146,14 @@ Launch the Laravel local development server:
 php artisan serve
 ```
 
-📖 API Documentation & Testing
+## 📖 API Documentation & Testing
+
 Interactive API documentation and endpoint explorer are powered by Scramble.
 
-```bash
 1. Make sure your application server is running via php artisan serve.
 
 2. Open your browser and navigate to:
 
+```bash
 👉 http://127.0.0.0.1:8000/docs/api
 ```
