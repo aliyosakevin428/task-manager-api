@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ActivityLogController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DashboardController;
@@ -109,6 +110,8 @@ Route::middleware('auth:sanctum')->group(function () {
                         ->middleware('permission:attachments.delete,sanctum');
                 });
             });
+            // Route::get('/activity-logs', [ActivityLogController::class, 'index'])
+            //     ->middleware('permission:activity-logs.view,sanctum'); -> activity-logs not yet implemented
         });
 });
 
