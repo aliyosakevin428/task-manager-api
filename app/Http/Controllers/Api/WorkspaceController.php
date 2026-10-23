@@ -102,15 +102,15 @@ class WorkspaceController extends Controller
      */
     public function show(Request $request, Workspace $workspace)
     {
-        $isMember = $workspace->members()
+        if (! $request->user()->isSuperadmin()) {
+            $isMember = $workspace->members()
             ->where('users.id', $request->user()->id)
             ->exists();
 
-        abort_unless($isMember, 403);
+            abort_unless($isMember, 403, 'You are not a member of this workspace.');
+         }
 
-        if (! $request->user()->isSuperadmin()) {
-            $workspace->load('members');
-        }
+        $workspace->load('members');
 
         return new WorkspaceResource($workspace);
     }
