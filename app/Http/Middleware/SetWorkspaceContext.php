@@ -28,23 +28,25 @@ class SetWorkspaceContext
 
         $registrar = app(PermissionRegistrar::class);
 
-        $currentTeamId = $registrar->getPermissionsTeamId();
         $registrar ->setPermissionsTeamId(0);
+        $isSuperadmin = $user->hasRole('superadmin', 'sanctum');
 
-        if ($request->user()->hasRole('superadmin', 'sanctum')) {
-            $registrar->setPermissionsTeamId($workspace->id);
-            return $next($request);
-        }
-
-        $registrar->setPermissionsTeamId($currentTeamId);
-
-        $isMember = $workspace->members()
-            ->where('users.id', $user->id)
-            ->exists();
-
-        abort_unless($isMember, 403, 'You are not a member of this workspace');
+        $user->unsetRelation('roles');
+        $user->unsetRelation('permissions');
 
         $registrar->setPermissionsTeamId($workspace->id);
+
+        $user->unsetRelation('roles');
+        $user->unsetRelation('permissions');
+
+        if (! $isSuperadmin) {
+            $isMember = $workspace->members()
+                ->where('users.id', $user->id)
+                ->exists();
+
+            abort_unless($isMember, 403, 'You are not a member of this workspace.');
+        }
+
         return $next($request);
 
     }
