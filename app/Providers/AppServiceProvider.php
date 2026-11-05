@@ -5,6 +5,7 @@ namespace App\Providers;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\PermissionRegistrar;
@@ -32,14 +33,14 @@ class AppServiceProvider extends ServiceProvider
             });
 
         Gate::before(function ($user, $ability) {
-            $registrar = app(PermissionRegistrar::class);
-
-            $current = $registrar->getPermissionsTeamId();
-            $registrar->setPermissionsTeamId(0);
-
-            $isSuper = $user->hasRole('superadmin', 'sanctum');
-
-            $registrar->setPermissionsTeamId($current);
+            $isSuper = DB::table('model_has_roles')
+                ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
+                ->where('roles.name', 'superadmin')
+                ->where('roles.guard_name', 'sanctum')
+                ->where('model_has_roles.model_id', $user->id)
+                ->where('model_has_roles.model_type', $user->getMorphClass())
+                ->where('model_has_roles.team_id', 0)
+                ->exists();
 
             return $isSuper ? true : null;
         });

@@ -21,18 +21,16 @@ class WorkspaceController extends Controller
     {
         $user = $request->user();
 
-        $query = Workspace::query()->orderByDesc('id');
+        $query = $user->isSuperAdmin()
+            ? Workspace::query()
+            : $user->workspace();
 
         // $workspace = Workspace::query()
         //     ->whereHas('members', fn($q) => $q->where('users.id', $user->id))
         //     ->orderByDesc('id')
         //     ->paginate(15);
 
-        if (! $user->isSuperadmin()) {
-            $query->whereHas('members', fn($q) => $q->where('users.id', $user->id));
-        }
-
-        return WorkspaceResource::collection($query->paginate(15));
+        return WorkspaceResource::collection($query->latest()->paginate(15));
     }
 
     /**
