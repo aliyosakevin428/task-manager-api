@@ -110,8 +110,8 @@ Route::middleware('auth:sanctum')->group(function () {
                         ->middleware('permission:attachments.delete,sanctum');
                 });
             });
-            // Route::get('/activity-logs', [ActivityLogController::class, 'index'])
-            //     ->middleware('permission:activity-logs.view,sanctum'); -> activity-logs not yet implemented
+            Route::get('/activity-logs', [ActivityLogController::class, 'index'])
+                ->middleware('permission:activity-logs.view,sanctum');
         });
 });
 
